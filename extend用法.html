@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+     <script src="../test/js/jquery.js" type="text/javascript"></script>
+</head>
+<body>
+<button id="w" class="ww">1111</button>
+<button id="w2" class="ww">1111</button>
+<script>
+// 合并对象，一般用于修改参数
+// var setting = {
+//     "name":"xiaoming",
+//     "age":"18",
+// }
+// var defult = {
+//     "name":"xiaohong",
+//     "height":"180",
+// }
+// $.extend(defult,setting);
+
+// var s = setting.name;
+// alert(s);
+
+// 给类的实例添加成员函数
+$.fn.extend({
+    call:function(setting){
+    	if (!setting) {
+	        $(this).click(function(){
+	             alert($(this).text());
+	        })
+        }
+    }
+})
+
+$('#w').call();
+$('#w2').call();
+</script>
+</body>
+</html>
+
+
+
+
