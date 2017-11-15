@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="http://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <style type="text/css">
+    *{
+        box-sizing: border-box;
+    }
+    .moveAndZoom {
+        width: 1080px;
+        height: 550px;
+        margin: 0 auto;
+        position: relative;
+    }  
+    .moveElement {
+        display: inline-block;
+        position: absolute;
+    }
+    .bg-grid {
+        box-sizing: content-box;
+        position: absolute;
+        top:0;
+        left: 0;
+        width: 1060px;
+        height: 530px;
+        z-index: -9999;
+        background: -webkit-linear-gradient(top,transparent 100px, #ccc 100px),
+                    -webkit-linear-gradient(left,transparent 100px, #ccc 100px);
+        
+        background-size: 106px 106px;
+        border-top: 6px solid #ccc;
+        border-left: 6px solid #ccc;
+    }
+    </style>
+</head>
+<body>
+    <div class="moveAndZoom">
+     <!--    <div class="bg-grid"></div> -->
+        <canvas id="canvas" width="1066" height="536"></canvas>
+        <div class="moveElement zoomElement" style="width:100px;height:100px;background-color: blue;top: 6px;left: 6px;"></div>
+    </div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function(){
+        drawGrid();
+        initElement(100,100,6);
+    })
+
+function initElement(rowsW,colsH,gapR){   
+    var moveObj = undefined,
+        startX, startY, endX, endY, orignX, orignY;
+
+    $(".zoomElement").each(function() {
+        $(this).mousemove(function(e) {
+            var target = e.target;
+            var offsetX = e.offsetX;  
+            var offsetY = e.offsetY;
+
+            var direction = inZoomArea(offsetX, offsetY, target);
+        });
+
+        $(this).mousedown(function(e) {
+            var target = e.target;
+
+            var offsetX = e.offsetX;
+            var offsetY = e.offsetY;
+
+            var direction = inZoomArea(offsetX, offsetY, target);
+
+            handleZoomByDirection(direction, target);
+        });
+    })
+
+    window.onmousedown = function(e) {
+        e.preventDefault();
+        if (e.target.className.indexOf("moveElement") != -1 && inZoomArea(e.offsetX, e.offsetY, e.target) == "no") {
+            moveObj = e.target;
+
+            var parent = $(moveObj).parents(".moveAndZoom");
+
+            orignX = e.offsetX;
+            orignY = e.offsetY;
+
+            startX = findOffsetLeftOrTopFromElementToParent("offsetLeft", parent, $("body"));
+            startY = findOffsetLeftOrTopFromElementToParent("offsetTop", parent, $("body"));
+            endX = parent[0].offsetWidth - moveObj.offsetWidth;
+            endY = parent[0].offsetHeight - moveObj.offsetHeight;
+
+            moveObj.style.cursor = "move";
+        }
+    }
+
+    window.onmousemove = function(e) {
+        e.preventDefault(); 
+        if (moveObj != undefined && moveObj.className.indexOf("moveElement") != -1) {
+            var target = moveObj;
+
+            var left = e.pageX - startX - orignX;
+            var top = e.pageY - startY - orignY;
+
+            if (left <= 0) left = 0;
+            if (top <= 0) top = 0;
+            if (left >= endX) left = endX;
+            if (top >= endY) top = endY;
+
+            moveObj.style.left = left + "px";
+            moveObj.style.top = top + "px";
+
+            moveObj.style.cursor = "move";
+        }
+    }
+
+    window.onmouseup = function(e) {
+        e.preventDefault();
+        if (moveObj != undefined && moveObj.className.indexOf("moveElement") != -1) {
+            var target = moveObj;
+
+            var left = e.pageX - startX - orignX;
+            var top = e.pageY - startY - orignY;
+            if (left >= endX) left = endX;
+            if (top >= endY) top = endY;
+
+            var _mow = '',
+                _moh = ''; 
+
+            if(left<rowsW){
+                _mow = gapR;
+            }else if((left%rowsW)>0){
+                _mow=(Math.floor(left/rowsW)*rowsW)+(Math.ceil(left/rowsW)*gapR);
+            }
+
+            if(top<colsH){
+                _moh = gapR;
+            }
+            else if((top%colsH)>0){
+                _moh=(Math.floor(top/colsH)*colsH)+(Math.ceil(top/colsH)*gapR);
+            }
+
+            moveObj.style.left = _mow + "px";
+            moveObj.style.top = _moh + "px";
+
+            moveObj.style.cursor = "auto";
+
+            moveObj = undefined;
+        }
+    }
+
+    /*
+     return element is in zoom area or not
+    */
+    function inZoomArea(offsetX, offsetY, target) {
+        var width = target.offsetWidth;
+        var height = target.offsetHeight;
+
+        if (offsetX >= width - 50 && offsetY >= height - 50) {
+            target.style.cursor = "nw-resize";
+            return "nw";
+        }else{
+        	target.style.cursor = "auto";
+        	return "no";
+        }
+
+        return;
+
+        if (offsetX < 5 && offsetY < 5 || offsetX >= width - 5 && offsetY >= height - 5) {
+            target.style.cursor = "nw-resize";
+            return "nw";
+        } else if (offsetX < 5 && offsetY >= height - 5 || offsetX >= width - 5 && offsetY < 5) {
+            target.style.cursor = "sw-resize";
+            return "sw";
+        } else if (offsetX < 5 || offsetX >= width - 5) {
+            target.style.cursor = "w-resize";
+            return "w";
+        } else if (offsetY < 5 || offsetY >= height - 5) {
+            target.style.cursor = "n-resize";
+            return "n";
+        } else {
+            target.style.cursor = "auto";
+            return "no";
+        }
+    }
+
+    function handleZoomByDirection(direction, target) {
+        switch (direction) {
+            // 只支持一个方向拖拉
+            case "nw":
+                
+            case "sw":
+                (function() {
+                    
+                    var parent = $(target).parents(".moveAndZoom");
+
+                    var orignX = target.offsetLeft;
+                    var orignY = target.offsetTop;
+                    var orignWidth = target.offsetWidth;
+                    var orignHeight = target.offsetHeight;
+
+                    parent.mousedown(function(e) {
+                        e.preventDefault();
+                        startX = findOffsetLeftOrTopFromElementToParent("offsetLeft", parent, $("body"));
+                        startY = findOffsetLeftOrTopFromElementToParent("offsetTop", parent, $("body"));
+                        endX = parent[0].offsetWidth;
+                        endY = parent[0].offsetHeight;
+                    });
+
+                    parent.mousemove(function(e) {
+                        e.preventDefault();
+
+                        var newWidth = e.pageX - startX - orignX;
+                        var newHeight = e.pageY - startY - orignY;
+                        target.style.opacity = 0.5;
+                        target.style.width = newWidth + "px";
+                        target.style.height = newHeight + "px";
+
+                    });
+
+                    parent.mouseup(function(e) {
+                        e.preventDefault();
+                        var _w = parseInt(target.style.width);
+                        var _h = parseInt(target.style.height);
+                        var _elW = rowsW+gapR;
+                        var _elH = colsH+gapR;
+                        var _acw = '';
+                        var _ach = ''; 
+
+                        if(_w<_elW){
+                            _acw = rowsW;
+                        }else if ((_w%_elW)>(_elW/2)){
+                            _acw=(Math.ceil(_w/_elW)*_elW)-gapR;
+                        }else{
+                            _acw=(Math.floor(_w/_elW)*_elW)-gapR;
+                        }
+
+                        if(_h<_elH){
+                            _ach = colsH;
+                        }
+                        else if((_h%_elH)>(_elH/2)){
+                            _ach=(Math.ceil(_h/_elH)*_elH)-gapR;
+                        }else{
+                            _ach=(Math.floor(_h/_elH)*_elH)-gapR;
+                        }                    
+                        
+                        target.style.width = _acw + "px";
+                        target.style.height = _ach + "px";
+
+                        parent.unbind("mousedown");
+                        parent.unbind("mousemove");
+                        parent.unbind("mouseup");
+
+                        target.style.opacity = 1;
+                    });
+
+                })();
+                break;
+            case "w":
+                break;
+            case "n":
+                break;
+            default:
+                break;
+        }
+    }
+
+    /*
+    startElement and endElement are jquery object
+
+    direction value = offsetLeft or offsetTop
+    */
+    function findOffsetLeftOrTopFromElementToParent(direction, startElement, endElement) {
+        if (startElement[0] === endElement[0]) {
+            return 0;
+        } else {
+            return findOffsetLeftOrTopFromElementToParent(direction, $(startElement[0].offsetParent), endElement) + startElement[0][direction];
+        }
+    }
+}
+    // 绘制网格
+    function drawGrid(){
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        
+        for(var i = 0+3;i<canvas.width;i+=106){
+            ctx.beginPath();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#ccc";
+            ctx.moveTo(i,0);
+            ctx.lineTo(i,canvas.height);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        for(var k = 0+3;k<canvas.height;k+=106){
+            ctx.beginPath();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#ccc";
+            ctx.moveTo(0,k);
+            ctx.lineTo(canvas.width,k);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    }   
+</script>
+
+</html>

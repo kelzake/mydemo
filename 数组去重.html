@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    var arr = [10,9,12,33,2,3,5,33,9,109,5,10]
+    var arr2 = [];
+
+    for(var i =0;i<arr.length;i++){
+        if(arr.indexOf(arr[i]) == i ){
+            arr2.push(arr[i])
+        }
+    }
+
+   /* IE8兼容    */
+   if(!Array.prototype.indexOf){
+        Array.prototype.indexOf = function(item){
+            for(var i=0;i<this.length;i++){
+                if(this[i] == item){
+                    return i
+                }
+            }
+            return -1
+        }
+   }
+    document.write(arr2)
+</script>
+</html>

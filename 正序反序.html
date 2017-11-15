@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/jquery.js"></script>
+</head>
+<button onclick="clk()">反过来</button>
+<ul>
+    <li>111</li>
+    <li>222</li>
+    <li>333</li>
+</ul>
+<script>
+    var li = document.querySelectorAll('li'); 
+    var liArray = Array.prototype.slice.call(li);  //转换为数组
+    var button =  document.querySelector('button');
+    var ul = document.querySelector('ul');
+    var flag = 0;
+      function clk(){
+        if(flag){
+            liArray.reverse();  //反向数组
+             var str = '';
+             for(var i=0;i<liArray.length;i++){
+                 str += liArray[i].outerHTML;
+             }
+             ul.innerHTML = str;
+             flag=''; 
+         }else{
+            liArray.reverse();
+             var str = '';
+             for(var i=0;i<liArray.length;i++){
+                 str += liArray[i].outerHTML;
+             }
+             ul.innerHTML = str;
+             flag=''; 
+         }  
+    }
+
+  
+</script>
+</html>

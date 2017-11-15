@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        .code{
+            display: inline;
+            color: #fff;
+            padding: 6px 10px;
+            background-color: rgba(0,0,0,.8);
+        }
+    </style>
+</head>
+<body>
+   <!--  ^1[34578]\d{2}(\d)(?!\1)([\d])\2{5}$ -->
+    <input id="ckvalue" type="text"><button onclick="exreg()">按我查验</button>
+    <span>规则：<pre class="code"></pre></span>
+    <hr>
+    <span>结果显示:<span id="cktext"></span> </span>
+    <script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+<script>
+var ex = /[\w]+@[\w]+\.[\w]+/;
+    $('.code').text(ex)
+function exreg() {
+    var result = ex.test($('#ckvalue').val());
+    console.log(ex.exec($('#ckvalue').val()))
+    if(result){
+        $('#cktext').text('通过');
+    }else{
+        $('#cktext').text('不通过');
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+     <script src="js/jquery.js" type="text/javascript"></script>
+</head>
+<style>
+  div{
+    float: left;
+    width: 80px;
+    height: 80px;
+    margin-left: 20px;
+    border: 1px solid #ddd
+  }
+  input{
+    width: 0;
+    height: 0;
+    border: 0;
+    margin: 0
+  }
+  input:focus{
+    outline: none;
+  }
+</style>
+<body>
+<form action="">
+  <input type="text" maxlength="6">
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</form>  
+</body>
+<script>
+  $(document).ready(function(){
+      checkCode();
+  })
+
+
+
+  //模拟输入验证码
+  var input =document.querySelector('input'),
+      spans = document.querySelectorAll('div');
+
+  input.addEventListener('input', function(){
+      var value = this.value, l = value.length;
+      for( var i = 0; i < 6; i++){
+          spans[i].innerHTML = value[i] || '';
+          spans[i].style.borderColor = '';
+      }
+      if( l>0 ) {
+          spans[Math.min(5,l)].style.borderColor = '#59C7B2';
+      }else{
+          spans[0].style.borderColor = '#59C7B2';
+      }
+  }, false);
+  input.addEventListener('blur', function(){
+      this.focus();
+  }, false);
+
+  input.focus();
+  spans[0].style.borderColor = '#59C7B2';
+</script>  
+</html>
